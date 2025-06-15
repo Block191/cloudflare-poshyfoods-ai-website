@@ -14,23 +14,23 @@ This repo (`cloudflare-poshyfoods-ai-website`) contains source code and content 
 - **Bilingual** support (en-CA / fr-CA) with correct `<link rel="alternate" hreflang="…">`  
 - **AI-agent enabled** development (ChatGPT Codex & Cursor AI + GitHub)  
 - **Fill-in Markdown forms** for non-dev product & recipe additions  
-- **Premium DTC theme** baseline (e.g. Minimog) for a designer-grade user experience  
+- **Premium DTC theme** baseline (Astro E-commerce by Creative Tim) for a designer-grade user experience  
 
 ---
 
 ## 🛠️ Tech Stack  
 | Layer             | Technology               | Purpose                                                  |
 |-------------------|--------------------------|----------------------------------------------------------|
-| Framework         | Astro (v5+)              | Static SSG, MDX, components                              |
-| Styling           | Tailwind CSS             | Utility-first design, custom theme tokens                |
-| Content           | MDX Collections          | Products, Recipes, Pages via frontmatter + Markdown body |
-| International     | `astro-i18n`             | en-CA / fr-CA routes & hreflang                          |
-| SEO & Schema      | JSON-LD + `@astrojs/sitemap` | Rich structured data + sitemap.xml                     |
-| Hosting           | Cloudflare Pages         | Free global CDN                                          |
-| Edge Logic        | Cloudflare Workers + KV  | Geo-redirect `/api/buyurl` to correct marketplace link    |
-| Forms & Email     | Workers + MailChannels / Klaviyo | Contact form routing, optional list sign-up         |
-| AI-Dev            | ChatGPT Codex & Cursor AI + GitHub | Prompt-driven code & content gen                  |
-| CI / QA           | GitHub Actions           | Build / link-check / Lighthouse / axe-playwright tests   |
+| **Framework**     | Astro (v5+)              | Static SSG, MDX, components                              |
+| **Styling**       | Tailwind CSS             | Utility-first design, custom theme tokens                |
+| **Content**       | MDX Collections          | Products, Recipes, Pages via frontmatter + Markdown body |
+| **International** | `astro-i18n`             | en-CA / fr-CA routes & hreflang                          |
+| **SEO & Schema**  | JSON-LD + `@astrojs/sitemap` | Rich structured data + `sitemap.xml`                 |
+| **Hosting**       | Cloudflare Pages         | Free global CDN                                          |
+| **Edge Logic**    | Cloudflare Workers + KV  | Geo-redirect `/api/buyurl` to correct marketplace link   |
+| **Forms & Email** | Workers + MailChannels / Klaviyo | Contact form routing, optional list sign-up        |
+| **AI-Dev**        | ChatGPT Codex & Cursor AI + GitHub | Prompt-driven code & content gen               |
+| **CI / QA**       | GitHub Actions           | Build / link-check / Lighthouse / axe-playwright tests   |
 
 ---
 
@@ -43,23 +43,45 @@ This repo (`cloudflare-poshyfoods-ai-website`) contains source code and content 
 - [ ] Configure ChatGPT Codex API & Cursor AI in IDE  
 
 ### 2. Scaffold & Integrations  
-- [ ] Initialize Astro:  
-  ```bash
-  npm create astro@latest .
+1. **Scaffold using the Astro E-commerce theme**  
+   ```bash
+   npm create astro@latest . \
+     --template https://github.com/creativetimofficial/astro-ecommerce
 ````
 
-Choose: Minimal + TypeScript + MDX + “Git init: No.”
+* This pulls in Creative Tim’s polished e-commerce starter with landing, product & shopping pages.
 
-* [ ] Add integrations:
+2. **Install dependencies & run dev**
 
-  ```bash
-  npx astro add tailwind
-  npx astro add sitemap
-  npm install astro-i18n
-  ```
+   ```bash
+   npm install
+   npm run dev
+   ```
 
-  Configure `astro.config.mjs` with `tailwind()`, `sitemap()`, `i18n({ locales: ['en-ca','fr-ca'] })`
-* [ ] Run `npm install` & `npm run dev` → confirm Astro welcome
+   ▶️ **Local preview**: [http://localhost:4321](http://localhost:4321)
+3. **Add core integrations**
+
+   ```bash
+   npx astro add tailwind
+   npx astro add sitemap
+   npm install astro-i18n
+   ```
+
+   Update `astro.config.mjs`:
+
+   ```js
+   import tailwind from '@astrojs/tailwind';
+   import sitemap from '@astrojs/sitemap';
+   import i18n from 'astro-i18n';
+
+   export default defineConfig({
+     integrations: [
+       tailwind(),
+       sitemap(),
+       i18n({ locales: ['en-ca','fr-ca'], defaultLocale: 'en-ca' })
+     ],
+   });
+   ```
 
 ### 3. Design System
 
@@ -68,8 +90,17 @@ Choose: Minimal + TypeScript + MDX + “Git init: No.”
   ```ts
   theme: {
     extend: {
-      colors: { pfSand:'#F7F3EF', pfCacao:'#3D3028', pfYellow:'#FFC93C', pfCoral:'#FF835E', pfMint:'#37C99E' },
-      fontFamily: { serif:['"Fraunces Variable"','serif'], sans:['Inter','sans-serif'] },
+      colors: {
+        pfSand:  '#F7F3EF',
+        pfCacao: '#3D3028',
+        pfYellow:'#FFC93C',
+        pfCoral: '#FF835E',
+        pfMint:  '#37C99E',
+      },
+      fontFamily: {
+        serif: ['"Fraunces Variable"','serif'],
+        sans:  ['Inter','sans-serif'],
+      },
     }
   }
   ```
@@ -78,7 +109,7 @@ Choose: Minimal + TypeScript + MDX + “Git init: No.”
   ```bash
   npm install @fontsource-variable/fraunces @fontsource/inter
   ```
-* [ ] Create `src/styles/app.css` importing Tailwind & fonts, apply global body styles
+* [ ] Create `src/styles/app.css` importing Tailwind & fonts; apply global body styles
 
 ### 4. Content & Schema
 
@@ -87,62 +118,61 @@ Choose: Minimal + TypeScript + MDX + “Git init: No.”
   ```bash
   npx astro add mdx
   ```
-* [ ] Add product MDX (e.g. `src/content/products/white-ogi.mdx`) with frontmatter (`title`, `slug`, `description`, `image`, `price`, `currency`, `inStock`, `amazonUrlCA`, etc.)
-* [ ] Add recipe MDX under `src/content/recipes/`
-* [ ] Create `src/components/ProductSchema.astro` & `RecipeSchema.astro` to render JSON-LD
+* [ ] Add **product** MDX under `src/content/products/` (e.g. `white-ogi.mdx`) with frontmatter fields
+* [ ] Add **recipe** MDX under `src/content/recipes/`
+* [ ] Create `src/components/ProductSchema.astro` & `RecipeSchema.astro` for JSON-LD
 * [ ] Create dynamic pages:
 
   * `src/pages/products/[slug].astro`
   * `src/pages/recipes/[slug].astro`
-    with `getStaticPaths()` & frontmatter binding
+    with `getStaticPaths()` & `Astro.props` binding
 
 ### 5. Geo-Aware Marketplace Worker
 
-* [ ] Create `workers/buyLink.js` using `req.cf.country` + KV lookup
-* [ ] Configure `wrangler.toml` with KV namespace `LINKS` binding & route `/api/buyurl*`
-* [ ] Seed KV with marketplace URLs for CA, US, ROW
-* [ ] Update all “Buy” links to `/api/buyurl?sku=…`
+* [ ] Create `workers/buyLink.js` reading `req.cf.country` + KV lookup
+* [ ] Configure `wrangler.toml` with KV namespace `LINKS` & route `/api/buyurl*`
+* [ ] Seed KV with marketplace URLs (CA, US, ROW)
+* [ ] Update all “Buy” buttons to hit `/api/buyurl?sku=…`
 
 ### 6. Internationalization
 
-* [ ] Duplicate content into `src/content/en-ca/…` & `fr-ca/…`
-* [ ] Translate MDX content via AI or manually
-* [ ] Ensure `<link rel="alternate" hreflang>` in layouts
+* [ ] Duplicate content under `src/content/en-ca/` & `fr-ca/`
+* [ ] Translate MDX via AI or manually
+* [ ] Ensure `<link rel="alternate" hreflang="…">` in layouts
 
 ### 7. SEO & AI-GEO Files
 
 * [ ] Insert JSON-LD schemas in each page `<head>`
 * [ ] Add `public/robots.txt` (allow GPTBot, Gemini, Claude)
 * [ ] Add `public/llms.txt` (AI crawl policy CC-BY-4.0)
-* [ ] Ensure `sitemap.xml` & `rss.xml` are generated
+* [ ] Ensure `sitemap.xml` & `rss.xml` generation
 
 ### 8. Visual Assets & Theme
 
-* [ ] Integrate Minimog-inspired Tailwind template (components, layout, typography)
-* [ ] Add DALL·E hero images in `public/images/`
-* [ ] Use `<picture>` with AVIF/WebP + lazy-load for large images
+* [ ] Replace placeholder assets with Poshy Foods imagery in `public/images/`
+* [ ] Use `<picture>` (AVIF/WebP + lazy-load) for hero & product images
 
 ### 9. UI & Fill-in Forms
 
-* [ ] Create markdown templates under `src/templates/` for products & recipes
+* [ ] Create MDX templates under `src/templates/` for products & recipes
 * [ ] Document “how to add a product” in `CONTRIBUTING.md`
-* [ ] Optionally integrate a Git-based CMS or Worker-based form to auto-generate MDX
+* [ ] (Optional) Integrate a Git-based CMS or Worker form to auto-generate MDX
 
 ### 10. Accessibility & Performance
 
 * [ ] Add `axe-playwright` tests → `npm run test:a11y`
 * [ ] Integrate Lighthouse CI → performance ≥ 90 Mobile
-* [ ] Add `scripts/linkCheck.js` → fail on 404s
+* [ ] Add `scripts/linkCheck.js` → fail on broken links
 
 ### 11. CI / Deployment
 
-* [ ] Create GitHub Actions workflow (`.github/workflows/ci.yml`): build → tests → deploy to Cloudflare Pages
-* [ ] Connect Pages to this repo; set build command `npm run build`, publish directory `dist/`
-* [ ] Configure custom domain `www.poshyfoods.com` in Cloudflare → SSL
+* [ ] Create GitHub Actions workflow (`.github/workflows/ci.yml`): build → tests → deploy to Pages
+* [ ] Connect Cloudflare Pages: build `npm run build`, publish `dist/`
+* [ ] Configure custom domain `www.poshyfoods.com` → SSL
 
 ### 12. Monitoring & Handoff
 
-* [ ] Add `scripts/serpSnapshot.js` for weekly AI-SERP checks (push to Google Sheet)
+* [ ] Add `scripts/serpSnapshot.js` for weekly AI-SERP checks → Google Sheet
 * [ ] Finalize `CONTRIBUTING.md` with fill-in form instructions
 * [ ] Tag release `v1.0.0`
 
@@ -169,7 +199,7 @@ Choose: Minimal + TypeScript + MDX + “Git init: No.”
 4. **View**
    Open 👉 [http://localhost:4321](http://localhost:4321)
 
-Use this README as the single source of truth. AI agents (Codex, Cursor) and human contributors can follow these steps, run associated CLI commands, and commit changes to deliver a fully-functional, AI-GEO-optimized Poshy Foods website.
+Use this README as your single source of truth. AI agents (Codex, Cursor) and human contributors can follow these steps, run the CLI commands, and commit changes to deliver a fully-functional, AI-GEO-optimized Poshy Foods website.
 
 ```
 ```
